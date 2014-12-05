@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height:100%">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Google Maps JavaScript API Example</title>
+    <script src="http://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"
+      type="text/javascript"></script>
+    <script type="text/javascript">
+
+    var map;
+    var mymarkers = [];
+    var boundmarkers = [];
+    var noflymarkers = [];
+    var polyCoordinates = [];
+    var boundary;
+    var boundMode;
+    var valid;
+    var infoWindow;
+
+var lines = [];
+
+    function init(lat, lng) {
+        var mapOptions = {
+          zoom: 6,
+          streetViewControl: false,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        
+        map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        map.setCenter(new google.maps.LatLng(lat, lng),15);
+        valid = 0;
+
+        google.maps.event.addListener(map, 'click', function(e) {       
+          myObject.set(e.latLng.lat().toFixed(6), e.latLng.lng().toFixed(6));
+          valid = 0;
+        });
+
+        infoWindow = new google.maps.InfoWindow();
+        boundMode = 0;
+    }
+
+    var infowindow = new google.maps.InfoWindow();
+    function markers(one, two, three, message) {
+
+    if(boundMode == 1) {
+        if(valid == 0) {
+            var latlng = new google.maps.LatLng(one, two);
+            var string = 'Invalid Coordinates!';
+
+
+            infowindow.setContent(string);
+            infowindow.setPosition(latlng);
+            infowindow.open(map);
+
+            return;
+        }
+
+    }
+
+    if(three == 0) {
+        // create a marker at the given latitude and longitude
+        var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(one, two),
+        map: map
+        });
+
+
+        mymarkers.push(marker);
+    }
+
+    else if(three == 1) {
+
+        var image = 'http://i1373.photobucket.com/albums/ag379/brynpnd/aircraftsmall_zps2ae10092.png';
+
+        // create a marker at the given latitude and longitude
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(one,two),
+            map: map,
+            icon: image
+        });
+
+        boundmarkers.push(marker);
+    }
+
+    else if(three == 2) {
+        var image = 'http://i1373.photobucket.com/albums/ag379/brynpnd/skull_zps3cab915d.png';
+
+        // create a marker at the given latitude and longitude
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(one,two),
+            map: map,
+            icon: image
+        });
+
+        noflymarkers.push(marker);
+
+    }
+
+        // add the listener with the message to the marker
+        google.maps.event.addListener(marker, 'click', (function(marker) {
+         return function() {
+                infowindow.setContent(message);
+                infowindow.open(map, marker);
+                }
+        })(marker));
+
+
+    }
+
+    function removemarkers(one){
+        if(one == 0) {
+            for (var i = 0; i < mymarkers.length; i++ ) {
+                mymarkers[i].setMap(null);
+            }
+            mymarkers = [];
+        }
+
+        if(one == 1) {
+            for (var i = 0; i < boundmarkers.length; i++ ) {
+                boundmarkers[i].setMap(null);
+            }
+            boundmarkers = [];
+        }
+
+        if(one == 2) {
+            for (var i = 0; i < noflymarkers.length; i++ ) {
+                noflymarkers[i].setMap(null);
+            }
+            noflymarkers = [];
+        }
+
+    }
+
+    function drawPolyLine(latone, lngone, lattwo, lngtwo, mode, index) {
+
+        var coordOne = new google.maps.LatLng(latone,lngone);
+        var coordTwo = new google.maps.LatLng(lattwo,lngtwo);
+
+        var flightPlanCoordinates = [
+            coordOne,
+            coordTwo
+        ];
+
+        if(index > 1) {
+            polyCoordinates.push(coordOne);
+        }
+
+        else {
+            polyCoordinates.push(coordTwo);
+            polyCoordinates.push(coordOne);
+        }
+
+        if(mode == 1) {
+            var flightPath = new google.maps.Polyline({
+            path: flightPlanCoordinates,
+            geodesic: true,
+            strokeColor: '#33FF00',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+            });
+        }
+
+       if(mode == 2) {
+            var flightPath = new google.maps.Polyline({
+            path: flightPlanCoordinates,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+            });
+        }
+
+       flightPath.setMap(map);
+
+        lines.push(flightPath);
+    }
+
+    function drawPolygon() {
+        boundary = new google.maps.Polygon({
+            paths: polyCoordinates,
+            strokeColor: '#33FF00',
+            strokeOpacity: 0.8,
+            strokeWeight: 3,
+            fillColor: '#33FF00',
+            fillOpacity: 0.35
+        });
+
+        boundary.setMap(map);
+        polyCoordinates = [];
+        for (var i = 0; i < lines.length; i++ ) {
+            lines[i].setMap(null);
+        }
+
+        google.maps.event.addListener(boundary, 'click', boundListener);
+
+        // clear previously drawn lines
+        lines = [];
+    }
+
+    function boundListener(event) {
+
+/*
+        var lat = event.latLng.lat();
+        var lng = event.latLng.lng();
+        var string = 'Coordinates: ' + lat + ', ' + lng;
+
+        infoWindow.setContent(string);
+        infoWindow.setPosition(event.latLng);
+        infoWindow.open(map);
+*/
+        myObject.set(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
+
+        valid = 1;
+        boundMode = true;
+    }
+
+    function allowdoubleclick() {
+          google.maps.event.addListener(map, 'dblclick', function() {
+            myObject.incNumClicks();
+          });
+    }
+
+    function inittest() {
+
+    }
+
+    </script>
+  </head>
+
+  <body style="height:100%" onload="init(21,-157);" topmargin="0" leftmargin="0">
+    <div id="map" style="width:100% ; height:100%"></div>
+  </body>
+</html>
+
