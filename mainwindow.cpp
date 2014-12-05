@@ -3,10 +3,11 @@
 #include "container.h"
 
 /* To Do:
-   - Can't input no fly zone when inputting boundary and vice versa
+   - Can't input anything else when inputting no-fly zone
    - Removing boundary/no-fly zone
-   - Cancel button when making boundary
-   - Polygon click listener return coordinates and valid waypoint
+   - Editting boundary/no-fly zone upon double-click
+   - Cancel button when making no-fly zone
+   - Mouse marker when clicked once
  */
 
 #define WAYPOINT 0
@@ -362,8 +363,9 @@ void MainWindow::on_undoBound_clicked()
         boundLongs.remove(boundIndex);
         listBoundCoordinates();
 
-        QString removeLast = QString("removeLastMarker(%1); null")
-                .arg(BOUNDARY);
+        QString removeLast = QString("removeLastMarker(%1,%2); null")
+                .arg(BOUNDARY)
+                .arg(boundIndex);
         ui->webView->page()->mainFrame()->evaluateJavaScript(removeLast);
     }
 }
@@ -512,7 +514,13 @@ void MainWindow::on_undoNoFly_clicked()
         noFlyIndex--;
         noFlyLats.remove(noFlyIndex);
         noFlyLongs.remove(noFlyIndex);
+
         listNoFlyCoordinates();
+
+        QString removeLast = QString("removeLastMarker(%1,%2); null")
+                .arg(NOFLYZONE)
+                .arg(noFlyIndex);
+        ui->webView->page()->mainFrame()->evaluateJavaScript(removeLast);
     }
 }
 

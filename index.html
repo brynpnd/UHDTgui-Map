@@ -51,15 +51,16 @@
     var infowindow = new google.maps.InfoWindow();
     function markers(one, two, three, message) {
 
+    var coordinates = new google.maps.LatLng(one,two);
+
     if(boundMode == 1) {
         if(valid == 0 && three != 2) {
 
             // make a function
-            var latlng = new google.maps.LatLng(one, two);
             var string = 'Invalid Coordinates!';
 
             infowindow.setContent(string);
-            infowindow.setPosition(latlng);
+            infowindow.setPosition(coordinates);
             infowindow.open(map);
 
             return;
@@ -67,9 +68,9 @@
 
     }
 
-    if(noFlyMode == 1) {
+    else if(noFlyMode == 1) {
         if(valid == 0 && three != 1) {
-        var latlng = new google.maps.LatLng(one, two);
+        var latlng = coordinates;
         var string = 'Invalid Coordinates!';
 
         infowindow.setContent(string);
@@ -83,7 +84,7 @@
     if(three == 0) {
         // create a marker at the given latitude and longitude
         var marker = new google.maps.Marker({
-        position: new google.maps.LatLng(one, two),
+        position: coordinates,
         map: map
         });
 
@@ -97,12 +98,13 @@
 
         // create a marker at the given latitude and longitude
         var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(one,two),
+            position: coordinates,
             map: map,
             icon: image
         });
 
         boundmarkers.push(marker);
+        polyCoordinates.push(coordinates);
     }
 
     else if(three == 2) {
@@ -110,13 +112,13 @@
 
         // create a marker at the given latitude and longitude
         var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(one,two),
+            position: coordinates,
             map: map,
             icon: image
         });
 
         noflymarkers.push(marker);
-
+        polyCoordinates.push(coordinates);
     }
 
         // add the listener with the message to the marker
@@ -154,7 +156,7 @@
 
     }
 
-    function removeLastMarker(mode) {
+    function removeLastMarker(mode, index) {
 
         if(mode == 1) {
             var length = boundmarkers.length;
@@ -168,10 +170,16 @@
             noflymarkers.pop();
         }
 
-        var linelength = lines.length;
-        lines[linelength-1].setMap(null);
-        lines.pop();
-        polyCoordinates.pop();
+        if(index > 0) {
+            var linelength = lines.length;
+            lines[linelength-1].setMap(null);
+            lines.pop();
+            polyCoordinates.pop();
+        }
+
+        else {
+            removePolyCoords();
+        }
 
     }
 
@@ -184,15 +192,6 @@
             coordOne,
             coordTwo
         ];
-
-        if(index > 1) {
-            polyCoordinates.push(coordOne);
-        }
-
-        else {
-            polyCoordinates.push(coordTwo);
-            polyCoordinates.push(coordOne);
-        }
 
         if(mode == 1) {
             var flightPath = new google.maps.Polyline({
@@ -214,7 +213,7 @@
             });
         }
 
-       flightPath.setMap(map);
+        flightPath.setMap(map);
 
         lines.push(flightPath);
     }
@@ -242,7 +241,7 @@
             });
 
             boundary.setMap(map);
-
+            boundMode = true;
             google.maps.event.addListener(boundary, 'click', boundListener);
         }
 
@@ -257,7 +256,7 @@
             });
 
             noflyzone.setMap(map);
-
+            noFlyMode = true;
             google.maps.event.addListener(noflyzone, 'click', noflyListener);
         }
 
@@ -279,14 +278,14 @@
         myObject.set(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
 
         valid = 1;
-        boundMode = true;
+
     }
 
     function noflyListener(event) {
         myObject.set(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
 
         valid = 0;
-        noFlyMode = true;
+
     }
 
     function allowdoubleclick() {
