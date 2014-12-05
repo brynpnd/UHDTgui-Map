@@ -14,7 +14,9 @@
     var noflymarkers = [];
     var polyCoordinates = [];
     var boundary;
+    var noflyzone;
     var boundMode;
+    var noFlyMode;
     var valid;
     var infoWindow;
 
@@ -33,21 +35,28 @@ var lines = [];
 
         google.maps.event.addListener(map, 'click', function(e) {       
           myObject.set(e.latLng.lat().toFixed(6), e.latLng.lng().toFixed(6));
-          valid = 0;
+
+          if(boundMode == 1)
+            valid = 0;
+
+          else if(noFlyMode == 1)
+            valid = 1;
         });
 
         infoWindow = new google.maps.InfoWindow();
         boundMode = 0;
+        noFlyMode = 0;
     }
 
     var infowindow = new google.maps.InfoWindow();
     function markers(one, two, three, message) {
 
     if(boundMode == 1) {
-        if(valid == 0) {
+        if(valid == 0 && three != 2) {
+
+            // make a function
             var latlng = new google.maps.LatLng(one, two);
             var string = 'Invalid Coordinates!';
-
 
             infowindow.setContent(string);
             infowindow.setPosition(latlng);
@@ -56,6 +65,19 @@ var lines = [];
             return;
         }
 
+    }
+
+    if(noFlyMode == 1) {
+        if(valid == 0 && three != 1) {
+        var latlng = new google.maps.LatLng(one, two);
+        var string = 'Invalid Coordinates!';
+
+        infowindow.setContent(string);
+        infowindow.setPosition(latlng);
+        infowindow.open(map);
+
+        return;
+        }
     }
 
     if(three == 0) {
@@ -176,26 +198,50 @@ var lines = [];
         lines.push(flightPath);
     }
 
-    function drawPolygon() {
-        boundary = new google.maps.Polygon({
-            paths: polyCoordinates,
-            strokeColor: '#33FF00',
-            strokeOpacity: 0.8,
-            strokeWeight: 3,
-            fillColor: '#33FF00',
-            fillOpacity: 0.35
-        });
+    function removeLines() {
 
-        boundary.setMap(map);
-        polyCoordinates = [];
         for (var i = 0; i < lines.length; i++ ) {
             lines[i].setMap(null);
         }
 
-        google.maps.event.addListener(boundary, 'click', boundListener);
-
         // clear previously drawn lines
         lines = [];
+    }
+
+    function drawPolygon(mode) {
+
+        if(mode == 1) {
+            boundary = new google.maps.Polygon({
+                paths: polyCoordinates,
+                strokeColor: '#33FF00',
+                strokeOpacity: 0.8,
+                strokeWeight: 3,
+                fillColor: '#33FF00',
+                fillOpacity: 0.35
+            });
+
+            boundary.setMap(map);
+
+            google.maps.event.addListener(boundary, 'click', boundListener);
+        }
+
+        if(mode == 2) {
+            noflyzone = new google.maps.Polygon({
+                paths: polyCoordinates,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 3,
+                fillColor: '#FF0000',
+                fillOpacity: 0.35
+            });
+
+            noflyzone.setMap(map);
+
+            google.maps.event.addListener(noflyzone, 'click', noflyListener);
+        }
+
+        removeLines();
+        removePolyCoords();
     }
 
     function boundListener(event) {
@@ -215,10 +261,21 @@ var lines = [];
         boundMode = true;
     }
 
+    function noflyListener(event) {
+        myObject.set(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
+
+        valid = 0;
+        noFlyMode = true;
+    }
+
     function allowdoubleclick() {
           google.maps.event.addListener(map, 'dblclick', function() {
             myObject.incNumClicks();
           });
+    }
+
+    function removePolyCoords() {
+        polyCoordinates = [];
     }
 
     function inittest() {

@@ -61,6 +61,7 @@ private slots:
     void on_copyNoFly_clicked();
     void on_confirmNoFly_clicked();
     void on_DrawNoFly_clicked();
+    void on_cancelBound_clicked();
 };
 
 #endif // MAINWINDOW_H

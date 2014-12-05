@@ -106,7 +106,6 @@ void MainWindow::on_DrawShape_clicked()
     QString latline = ui->lat->text();
     QString longline = ui->lng->text();
 
-    ui->DrawShape->setEnabled(false);
     showBoundaryInput();
 
 
@@ -128,6 +127,13 @@ void MainWindow::hideBoundaryInput() {
     ui->inputLatLabel->setHidden(true);
     ui->inputLongLabel->setHidden(true);
     ui->boundCoordinates->setHidden(true);
+    ui->cancelBound->setHidden(true);
+
+    ui->DrawShape->setHidden(false);
+
+    ui->PutMarker->setEnabled(true);
+    ui->ClearMarker->setEnabled(true);
+    ui->DrawNoFly->setEnabled(true);
 }
 
 /* Given: None
@@ -144,7 +150,18 @@ void MainWindow::showBoundaryInput() {
     ui->inputLatLabel->setHidden(false);
     ui->inputLongLabel->setHidden(false);
     ui->boundCoordinates->setHidden(false);
+    ui->cancelBound->setHidden(false);
+
+    ui->DrawShape->setHidden(true);
+
+    ui->PutMarker->setEnabled(false);
+    ui->ClearMarker->setEnabled(false);
+    ui->DrawNoFly->setEnabled(false);
+
     ui->boundCoordinates->setText("No boundary coordinates input.");
+
+
+
 }
 
 /* Given: None
@@ -355,7 +372,7 @@ void MainWindow::on_undoBound_clicked()
 void MainWindow::on_confirmBound_clicked()
 {
     hideBoundaryInput();
-    ui->DrawShape->setEnabled(true);
+
 /*
     // draw boundary from last point to first point
     QString boundline = QString("drawPolyLine(%1,%2,%3,%4,%5,%6); null")
@@ -371,7 +388,8 @@ void MainWindow::on_confirmBound_clicked()
 
 
     // draw polygon
-    QString drawPoly = QString("drawPolygon(); null");
+    QString drawPoly = QString("drawPolygon(%1); null")
+            .arg(BOUNDARY);
     ui->webView->page()->mainFrame()->evaluateJavaScript(drawPoly);
 
     // clear lat and long boundary arrays
@@ -543,6 +561,11 @@ void MainWindow::on_confirmNoFly_clicked()
 
     ui->webView->page()->mainFrame()->evaluateJavaScript(noFlyline);
 
+    // draw polygon
+    QString drawPoly = QString("drawPolygon(%1); null")
+            .arg(NOFLYZONE);
+    ui->webView->page()->mainFrame()->evaluateJavaScript(drawPoly);
+
     // clear lat and long no fly zone arrays
     QString clearnofly = QString("removemarkers(%1); null")
             .arg(NOFLYZONE);
@@ -571,3 +594,19 @@ void MainWindow::clearNoFlyCoordinates() {
     noFlyIndex = 0;
 }
 
+
+void MainWindow::on_cancelBound_clicked()
+{
+    hideBoundaryInput();
+    clearBoundCoordinates();
+
+    QString removeLines = QString("removeLines();");
+    ui->webView->page()->mainFrame()->evaluateJavaScript(removeLines);
+
+    QString removeMarkers = QString("removemarkers(%1); null")
+            .arg(BOUNDARY);
+    ui->webView->page()->mainFrame()->evaluateJavaScript(removeMarkers);
+
+    QString removePoly = QString("removePolyCoords();");
+    ui->webView->page()->mainFrame()->evaluateJavaScript(removePoly);
+}

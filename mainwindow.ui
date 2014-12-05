@@ -48,6 +48,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="cancelBound">
+        <property name="text">
+         <string>Cancel Boundary Coordinates</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="DrawNoFly">
         <property name="text">
          <string>Input No-Fly Zone</string>
