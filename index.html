@@ -20,7 +20,7 @@
     var valid;
     var infoWindow;
 
-var lines = [];
+    var lines = [];
 
     function init(lat, lng) {
         var mapOptions = {
@@ -151,6 +151,27 @@ var lines = [];
             }
             noflymarkers = [];
         }
+
+    }
+
+    function removeLastMarker(mode) {
+
+        if(mode == 1) {
+            var length = boundmarkers.length;
+            boundmarkers[length-1].setMap(null);
+            boundmarkers.pop();
+        }
+
+        else if(mode == 2) {
+            var length = noflymarkers.length;
+            noflymarkers[length-1].setMap(null);
+            noflymarkers.pop();
+        }
+
+        var linelength = lines.length;
+        lines[linelength-1].setMap(null);
+        lines.pop();
+        polyCoordinates.pop();
 
     }
 

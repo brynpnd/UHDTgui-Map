@@ -361,6 +361,10 @@ void MainWindow::on_undoBound_clicked()
         boundLats.remove(boundIndex);
         boundLongs.remove(boundIndex);
         listBoundCoordinates();
+
+        QString removeLast = QString("removeLastMarker(%1); null")
+                .arg(BOUNDARY);
+        ui->webView->page()->mainFrame()->evaluateJavaScript(removeLast);
     }
 }
 
