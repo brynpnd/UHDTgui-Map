@@ -150,10 +150,13 @@ void MainWindow::showBoundaryInput() {
     ui->inputLongLabel->setHidden(false);
     ui->boundCoordinates->setHidden(false);
     ui->cancelBound->setHidden(false);
+    ui->DrawShape->setHidden(true);
 
-    ui->PutMarker->setEnabled(true);
-    ui->ClearMarker->setEnabled(true);
-    ui->DrawNoFly->setEnabled(true);
+    ui->PutMarker->setEnabled(false);
+    ui->ClearMarker->setEnabled(false);
+    ui->DrawNoFly->setEnabled(false);
+
+    ui->boundCoordinates->setText("No boundary coordinates input.");
 }
 
 /* Given: None
