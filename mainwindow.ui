@@ -61,6 +61,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="cancelNoFly">
+        <property name="text">
+         <string>Cancel No-Fly Zone</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>

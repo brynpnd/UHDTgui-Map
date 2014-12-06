@@ -109,8 +109,6 @@ void MainWindow::on_DrawShape_clicked()
 
     showBoundaryInput();
 
-
-
     // add current coordinates label
 }
 
@@ -153,16 +151,9 @@ void MainWindow::showBoundaryInput() {
     ui->boundCoordinates->setHidden(false);
     ui->cancelBound->setHidden(false);
 
-    ui->DrawShape->setHidden(true);
-
-    ui->PutMarker->setEnabled(false);
-    ui->ClearMarker->setEnabled(false);
-    ui->DrawNoFly->setEnabled(false);
-
-    ui->boundCoordinates->setText("No boundary coordinates input.");
-
-
-
+    ui->PutMarker->setEnabled(true);
+    ui->ClearMarker->setEnabled(true);
+    ui->DrawNoFly->setEnabled(true);
 }
 
 /* Given: None
@@ -179,7 +170,14 @@ void MainWindow::hideNoFlyInput() {
     ui->inputLatLabel_2->setHidden(true);
     ui->inputLongLabel_2->setHidden(true);
     ui->boundCoordinates->setHidden(true);
-    ui->DrawNoFly->setEnabled(true);
+
+    ui->cancelNoFly->setHidden(true);
+
+    ui->DrawNoFly->setHidden(false);
+
+    ui->PutMarker->setEnabled(true);
+    ui->ClearMarker->setEnabled(true);
+    ui->DrawShape->setEnabled(true);
 }
 
 /* Given: None
@@ -196,7 +194,14 @@ void MainWindow::showNoFlyInput() {
     ui->inputLatLabel_2->setHidden(false);
     ui->inputLongLabel_2->setHidden(false);
     ui->boundCoordinates->setHidden(false);
-    ui->DrawNoFly->setEnabled(false);
+    ui->cancelNoFly->setHidden(false);
+
+    ui->DrawNoFly->setHidden(true);
+
+    ui->PutMarker->setEnabled(false);
+    ui->ClearMarker->setEnabled(false);
+    ui->DrawShape->setEnabled(false);
+
     ui->boundCoordinates->setText("No no-fly zone coordinates input.");
 }
 
@@ -617,6 +622,22 @@ void MainWindow::on_cancelBound_clicked()
 
     QString removeMarkers = QString("removemarkers(%1); null")
             .arg(BOUNDARY);
+    ui->webView->page()->mainFrame()->evaluateJavaScript(removeMarkers);
+
+    QString removePoly = QString("removePolyCoords();");
+    ui->webView->page()->mainFrame()->evaluateJavaScript(removePoly);
+}
+
+void MainWindow::on_cancelNoFly_clicked()
+{
+    hideNoFlyInput();
+    clearNoFlyCoordinates();
+
+    QString removeLines = QString("removeLines();");
+    ui->webView->page()->mainFrame()->evaluateJavaScript(removeLines);
+
+    QString removeMarkers = QString("removemarkers(%1); null")
+            .arg(NOFLYZONE);
     ui->webView->page()->mainFrame()->evaluateJavaScript(removeMarkers);
 
     QString removePoly = QString("removePolyCoords();");
