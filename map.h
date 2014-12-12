@@ -1,7 +1,7 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAP_H
+#define MAP_H
 
-#include <QMainWindow>
+#include <QWidget>
 #include <QWebView>
 #include <QWebPage>
 #include <QWebFrame>
@@ -13,16 +13,16 @@
 
 namespace Ui
 {
-    class MainWindow;
+    class Map;
 }
 
-class MainWindow : public QMainWindow
+class Map : public QWidget
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    Map(QWidget *parent = 0);
+    ~Map();
 
     void javascriptClick(void);
     void hideBoundaryInput(void);
@@ -38,7 +38,7 @@ public:
     void clearNoFlyCoordinates(void);
 
 private:
-    Ui::MainWindow *ui;
+    Ui::Map *ui;
     Container boundLats;
     Container boundLongs;
     Container noFlyLats;
@@ -68,4 +68,4 @@ private slots:
     void on_finishRemove_clicked();
 };
 
-#endif // MAINWINDOW_H
+#endif // MAP_H

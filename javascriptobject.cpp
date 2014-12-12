@@ -1,14 +1,14 @@
 #include "javascriptobject.h"
-#include "mainwindow.h"
+#include "map.h"
 
 /* Given: The Widget that the Object belongs to
  * Returns: None
- * Purpose: Initializes a JavascriptObject with myMainWindow connected
+ * Purpose: Initializes a JavascriptObject with myMap connected
  * to the parent widget
  */
 JavascriptObject::JavascriptObject(QWidget *parent)
 {
-    myMainWindow = (MainWindow *)parent;
+    myMap = (Map *)parent;
 }
 
 /* Given: None
@@ -26,5 +26,5 @@ QPointF JavascriptObject::getLatLng() {
 void JavascriptObject::set(float lat, float lng){
     mVar.setX(lat);
     mVar.setY(lng);
-    myMainWindow->javascriptClick();
+    myMap->javascriptClick();
 }

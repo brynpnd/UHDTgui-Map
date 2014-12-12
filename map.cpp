@@ -1,5 +1,5 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "map.h"
+#include "ui_map.h"
 #include "container.h"
 
 /* To Do:
@@ -16,14 +16,14 @@
 
 /* Given: The widget that the object belongs to
  * Returns: None
- * Purpose: Initializes the MainWindow object with the boundary input
+ * Purpose: Initializes the Map object with the boundary input
  * and no-fly zone input components hidden, and the boundary and no-fly zone
  * coordinate containers empty. This function also opens the JavaScript file
  * and links its contents to a QWebView object
  */
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow)
+Map::Map(QWidget *parent)
+    : QWidget(parent), ui(new Ui::Map)
 {
     ui->setupUi(this);
     boundIndex = 0;
@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 // Deconstructor: Deletes the Ui pointer to prevent any memory leaks
-MainWindow::~MainWindow()
+Map::~Map()
 {
     delete ui;
 }
@@ -69,7 +69,7 @@ MainWindow::~MainWindow()
  * Signal: PutMarker QPushButton being pressed
  * Purpose: Add a marker onto the map by calling the markers JavaScript function
  */
-void MainWindow::on_PutMarker_clicked()
+void Map::on_PutMarker_clicked()
 {
     QString latline = ui->lat->text();
     QString longline = ui->lng->text();
@@ -86,7 +86,7 @@ void MainWindow::on_PutMarker_clicked()
  * Signal: ClearMarker QPushButton being pressed
  * Purpose: Clears all markers on the map by calling the removemarkers JavaScript function
  */
-void MainWindow::on_ClearMarker_clicked()
+void Map::on_ClearMarker_clicked()
 {
     QString marker = QString("removemarkers(%1); null")
             .arg(WAYPOINT);
@@ -97,7 +97,7 @@ void MainWindow::on_ClearMarker_clicked()
  * Returns: None
  * Purpose: Display the latitude and longitude of the clicked location
  */
-void MainWindow::javascriptClick(void){
+void Map::javascriptClick(void){
     ui->lat->setText(QString::number(myObject->getLatLng().rx()));
     ui->lng->setText(QString::number(myObject->getLatLng().ry()));
 }
@@ -106,7 +106,7 @@ void MainWindow::javascriptClick(void){
  * Signal: DrawShape QPushButton being pressed
  * Purpose: Activates components used to implement the boundary
  */
-void MainWindow::on_DrawShape_clicked()
+void Map::on_DrawShape_clicked()
 {
     QString latline = ui->lat->text();
     QString longline = ui->lng->text();
@@ -120,7 +120,7 @@ void MainWindow::on_DrawShape_clicked()
  * Returns: None
  * Purpose: Hides the components used to implement the boundary
  */
-void MainWindow::hideBoundaryInput() {
+void Map::hideBoundaryInput() {
     ui->latBound->setHidden(true);
     ui->longBound->setHidden(true);
     ui->addBound->setHidden(true);
@@ -146,7 +146,7 @@ void MainWindow::hideBoundaryInput() {
  * Returns: None
  * Purpose: Shows the components used to implement the boundary
  */
-void MainWindow::showBoundaryInput() {
+void Map::showBoundaryInput() {
     ui->latBound->setHidden(false);
     ui->longBound->setHidden(false);
     ui->addBound->setHidden(false);
@@ -171,7 +171,7 @@ void MainWindow::showBoundaryInput() {
  * Returns: None
  * Purpose: Hides the components used to implement the no-fly zone
  */
-void MainWindow::hideNoFlyInput() {
+void Map::hideNoFlyInput() {
     ui->latNoFly->setHidden(true);
     ui->lngNoFly->setHidden(true);
     ui->addNoFly->setHidden(true);
@@ -196,7 +196,7 @@ void MainWindow::hideNoFlyInput() {
  * Returns: None
  * Purpose: Shows the components used to implement the no-fly zone
  */
-void MainWindow::showNoFlyInput() {
+void Map::showNoFlyInput() {
     ui->latNoFly->setHidden(false);
     ui->lngNoFly->setHidden(false);
     ui->addNoFly->setHidden(false);
@@ -225,7 +225,7 @@ void MainWindow::showNoFlyInput() {
  * containers. This function also adds a marker at the inputted coordinates and draws
  * a polyline when there is more than one point by calling javascript functions.
  */
-void MainWindow::on_addBound_clicked()
+void Map::on_addBound_clicked()
 {
     QString lat = ui->latBound->text();
     QString lng = ui->longBound->text();
@@ -312,7 +312,7 @@ void MainWindow::on_addBound_clicked()
  * Returns: None
  * Purpose: Lists all the coordinates in their container
  */
-void MainWindow::listBoundCoordinates() {
+void Map::listBoundCoordinates() {
     QString coordinates;
     for(int i = 0; i < boundIndex; i++) {
         QString appendStr = QString("Point %1: %2, %3\n")
@@ -331,7 +331,7 @@ void MainWindow::listBoundCoordinates() {
  * This function also adds a marker at the copied coordinates and draws
  * a polyline when there is more than one point by calling javascript functions
  */
-void MainWindow::on_copyBound_clicked()
+void Map::on_copyBound_clicked()
 {
     QString lat = ui->lat->text();
     QString lng = ui->lng->text();
@@ -369,7 +369,7 @@ void MainWindow::on_copyBound_clicked()
  * Signal: undoBound QPushButton being pressed
  * Purpose: remove the last inputted coordinates from their container and the map
  */
-void MainWindow::on_undoBound_clicked()
+void Map::on_undoBound_clicked()
 {
     // remove latest latitude and longitude
     if (boundIndex == 0)
@@ -394,7 +394,7 @@ void MainWindow::on_undoBound_clicked()
  * Purpose: Hides the components used to implement a boundary and connects the last inputted point
  * to the first point
  */
-void MainWindow::on_confirmBound_clicked()
+void Map::on_confirmBound_clicked()
 {
     if(boundIndex > 2) {
 
@@ -426,7 +426,7 @@ void MainWindow::on_confirmBound_clicked()
  * Returns: None
  * Purpose: Clears the containers used to hold the boundary coordinates
  */
-void MainWindow::clearBoundCoordinates() {
+void Map::clearBoundCoordinates() {
     boundLats.clear();
     boundLongs.clear();
     boundIndex = 0;
@@ -436,13 +436,13 @@ void MainWindow::clearBoundCoordinates() {
  * Signal: DrawNoFly QPushButton being pressed
  * Purpose: Reveals the components used to implement a no-fly zone
  */
-void MainWindow::on_DrawNoFly_clicked()
+void Map::on_DrawNoFly_clicked()
 {
     showNoFlyInput();
 }
 
 
-void MainWindow::on_addNoFly_clicked()
+void Map::on_addNoFly_clicked()
 {
     QString lat = ui->latNoFly->text();
     QString lng = ui->lngNoFly->text();
@@ -518,7 +518,7 @@ void MainWindow::on_addNoFly_clicked()
         ui->boundCoordinates->append("Invalid latitude and longitude.");
 }
 
-void MainWindow::on_undoNoFly_clicked()
+void Map::on_undoNoFly_clicked()
 {
     // remove latest latitude and longitude
     if (noFlyIndex == 0)
@@ -539,7 +539,7 @@ void MainWindow::on_undoNoFly_clicked()
     }
 }
 
-void MainWindow::on_copyNoFly_clicked()
+void Map::on_copyNoFly_clicked()
 {
     QString lat = ui->lat->text();
     QString lng = ui->lng->text();
@@ -573,7 +573,7 @@ void MainWindow::on_copyNoFly_clicked()
      listNoFlyCoordinates();
 }
 
-void MainWindow::on_confirmNoFly_clicked()
+void Map::on_confirmNoFly_clicked()
 {
     if(noFlyIndex > 2) {
         hideNoFlyInput();
@@ -609,7 +609,7 @@ void MainWindow::on_confirmNoFly_clicked()
         ui->boundCoordinates->setText("You must enter at least 3 coordinates.");
 }
 
-void MainWindow::listNoFlyCoordinates() {
+void Map::listNoFlyCoordinates() {
     QString coordinates;
     for(int i = 0; i < noFlyIndex; i++) {
         QString appendStr = QString("Point %1: %2, %3\n")
@@ -622,14 +622,14 @@ void MainWindow::listNoFlyCoordinates() {
     ui->boundCoordinates->setText(coordinates);
 }
 
-void MainWindow::clearNoFlyCoordinates() {
+void Map::clearNoFlyCoordinates() {
     noFlyLats.clear();
     noFlyLongs.clear();
     noFlyIndex = 0;
 }
 
 
-void MainWindow::on_cancelBound_clicked()
+void Map::on_cancelBound_clicked()
 {
     hideBoundaryInput();
     clearBoundCoordinates();
@@ -645,7 +645,7 @@ void MainWindow::on_cancelBound_clicked()
     ui->webView->page()->mainFrame()->evaluateJavaScript(removePoly);
 }
 
-void MainWindow::on_cancelNoFly_clicked()
+void Map::on_cancelNoFly_clicked()
 {
     hideNoFlyInput();
     clearNoFlyCoordinates();
@@ -661,7 +661,7 @@ void MainWindow::on_cancelNoFly_clicked()
     ui->webView->page()->mainFrame()->evaluateJavaScript(removePoly);
 }
 
-void MainWindow::on_removeBoundary_clicked()
+void Map::on_removeBoundary_clicked()
 {
     hideBoundaryInput();
 
@@ -669,7 +669,7 @@ void MainWindow::on_removeBoundary_clicked()
     ui->webView->page()->mainFrame()->evaluateJavaScript(removeBoundary);
 }
 
-void MainWindow::on_removeNoFly_clicked()
+void Map::on_removeNoFly_clicked()
 {
     hideNoFlyInput();
 
@@ -688,7 +688,7 @@ void MainWindow::on_removeNoFly_clicked()
 
 }
 
-void MainWindow::on_finishRemove_clicked()
+void Map::on_finishRemove_clicked()
 {
     ui->finishRemove->setVisible(false);
 

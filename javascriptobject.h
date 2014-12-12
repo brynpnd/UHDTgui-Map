@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QPointF>
 
-class MainWindow;
+class Map;
 
 class JavascriptObject : public QObject
 {
@@ -20,7 +20,7 @@ public slots:
 
 private:
    QPointF mVar;
-   MainWindow *myMainWindow;
+   Map *myMap;
 
 };
 

@@ -6,11 +6,13 @@ QT += gui network \
 TARGET = QtJavaScript2
 TEMPLATE += app
 SOURCES += main.cpp \
-    mainwindow.cpp \
     javascriptobject.cpp \
-    container.cpp
-HEADERS += mainwindow.h \
+    container.cpp \
+    map.cpp
+HEADERS += \
     javascriptobject.h \
-    container.h
-FORMS += mainwindow.ui
+    container.h \
+    map.h
+FORMS += \
+    map.ui
 RESOURCES += Resources.qrc

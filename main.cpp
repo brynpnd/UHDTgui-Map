@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "mainwindow.h"
+#include "map.h"
 
 
 /* Given: Any arguments passed through a command line
@@ -10,7 +10,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+    Map w;
     w.setWindowTitle("DroneTech");
     w.showMaximized();
     return a.exec();
