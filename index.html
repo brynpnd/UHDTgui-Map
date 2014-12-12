@@ -14,11 +14,12 @@
     var noflymarkers = [];
     var polyCoordinates = [];
     var boundary;
-    var noflyzone;
+    var noflyzone = [];
     var boundMode;
     var noFlyMode;
     var valid;
     var infoWindow;
+    var noflylisteners = [];
 
     var lines = [];
 
@@ -34,7 +35,7 @@
         valid = 0;
 
         google.maps.event.addListener(map, 'click', function(e) {       
-          myObject.set(e.latLng.lat().toFixed(6), e.latLng.lng().toFixed(6));
+          myObject.set(e.latLng.lat().toFixed(7), e.latLng.lng().toFixed(7));
 
           if(boundMode == true)
             valid = 0;
@@ -54,6 +55,10 @@
     var coordinates = new google.maps.LatLng(one,two);
 
     if(boundMode == true) {
+
+        if(!boundary.containsLatLng(coordinates))
+            valid = 0;
+
         if(valid == 0 && three != 2) {
 
             // make a function
@@ -68,8 +73,14 @@
 
     }
 
-    else if(noFlyMode == true) {
-        if(valid == 0 && three != 1) {
+    if(noFlyMode == true) {
+
+        for(var i = 0; i < noflyzone.length; i++) {
+            if(noflyzone[i].containsLatLng(coordinates))
+                valid = 0;
+        }
+
+        if(valid == 0 && three == 0) {
         var latlng = coordinates;
         var string = 'Invalid Coordinates!';
 
@@ -247,7 +258,7 @@
         }
 
         if(mode == 2) {
-            noflyzone = new google.maps.Polygon({
+            var nofly = new google.maps.Polygon({
                 paths: polyCoordinates,
                 strokeColor: '#FF0000',
                 strokeOpacity: 0.8,
@@ -257,9 +268,11 @@
                 zIndex: 2
             });
 
-            noflyzone.setMap(map);
+            nofly.setMap(map);
             noFlyMode = true;
-            google.maps.event.addListener(noflyzone, 'click', noflyListener);
+            google.maps.event.addListener(nofly, 'click', noflyListener);
+
+            noflyzone.push(nofly);
         }
 
         removeLines();
@@ -277,14 +290,14 @@
         infoWindow.setPosition(event.latLng);
         infoWindow.open(map);
 */
-        myObject.set(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
+        myObject.set(event.latLng.lat().toFixed(7), event.latLng.lng().toFixed(7));
 
         valid = 1;
 
     }
 
     function noflyListener(event) {
-        myObject.set(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
+        myObject.set(event.latLng.lat().toFixed(7), event.latLng.lng().toFixed(7));
 
         valid = 0;
 
@@ -300,9 +313,148 @@
         polyCoordinates = [];
     }
 
+
+    function removeBoundary() {
+        boundary.setMap(null);
+        boundary = null;
+        boundMode = false;
+    }
+
+    function removeNoFly() {
+
+        if(noflyzone.length > 1) {
+
+            var centerCoords = map.getCenter();
+
+            var centerWindow = new google.maps.InfoWindow();
+            var centermsg = 'Right click on a no-fly zone to remove it.';
+            centerWindow.setContent(centermsg);
+            centerWindow.setPosition(centerCoords);
+            centerWindow.open(map);
+
+            for(var i = 0; i < noflyzone.length; i++) {
+
+                var newListener = google.maps.event.addListener(noflyzone[i], 'rightclick', function() {
+
+                    this.setMap(null);
+                    var index = noflyzone.indexOf(this);
+                    noflyzone.splice(index,1);
+
+                });
+
+                noflylisteners.push(newListener);
+        }
+
+            return true;
+        }
+
+        else {
+            noflyzone[0].setMap(null);
+            noflyzone = [];
+
+            return false;
+        }
+    }
+
+    function numNoFly() {
+        return noflyzone.length;
+    }
+
+    function rmNoFlyListener() {
+        for(var i = 0; i < noflylisteners.length; i++)
+            google.maps.event.removeListener(noflylisteners[i]);
+    }
+
     function inittest() {
 
     }
+
+    // Polygon getBounds extension - google-maps-extensions
+    // https://github.com/tparkin/Google-Maps-Point-in-Polygon
+    // http://code.google.com/p/google-maps-extensions/source/browse/google.maps.Polygon.getBounds.js
+    if (!google.maps.Polygon.prototype.getBounds) {
+      google.maps.Polygon.prototype.getBounds = function(latLng) {
+        var bounds = new google.maps.LatLngBounds(),
+          paths = this.getPaths(),
+          path,
+          p, i;
+
+        for (p = 0; p < paths.getLength(); p++) {
+          path = paths.getAt(p);
+          for (i = 0; i < path.getLength(); i++) {
+            bounds.extend(path.getAt(i));
+          }
+        }
+
+        return bounds;
+      };
+    }
+
+    // Polygon containsLatLng - method to determine if a latLng is within a polygon
+    google.maps.Polygon.prototype.containsLatLng = function(latLng) {
+      // Exclude points outside of bounds as there is no way they are in the poly
+
+      var inPoly = false,
+        bounds, lat, lng,
+        numPaths, p, path, numPoints,
+        i, j, vertex1, vertex2;
+
+      // Arguments are a pair of lat, lng variables
+      if (arguments.length == 2) {
+        if (
+          typeof arguments[0] == "number" &&
+          typeof arguments[1] == "number"
+        ) {
+          lat = arguments[0];
+          lng = arguments[1];
+        }
+      } else if (arguments.length == 1) {
+        bounds = this.getBounds();
+
+        if (!bounds && !bounds.contains(latLng)) {
+          return false;
+        }
+        lat = latLng.lat();
+        lng = latLng.lng();
+      } else {
+        console.log("Wrong number of inputs in google.maps.Polygon.prototype.contains.LatLng");
+      }
+
+      // Raycast point in polygon method
+
+      numPaths = this.getPaths().getLength();
+      for (p = 0; p < numPaths; p++) {
+        path = this.getPaths().getAt(p);
+        numPoints = path.getLength();
+        j = numPoints - 1;
+
+        for (i = 0; i < numPoints; i++) {
+          vertex1 = path.getAt(i);
+          vertex2 = path.getAt(j);
+
+          if (
+            vertex1.lng() <  lng &&
+            vertex2.lng() >= lng ||
+            vertex2.lng() <  lng &&
+            vertex1.lng() >= lng
+          ) {
+            if (
+              vertex1.lat() +
+              (lng - vertex1.lng()) /
+              (vertex2.lng() - vertex1.lng()) *
+              (vertex2.lat() - vertex1.lat()) <
+              lat
+            ) {
+              inPoly = !inPoly;
+            }
+          }
+
+          j = i;
+        }
+      }
+
+      return inPoly;
+    };
 
     </script>
   </head>
